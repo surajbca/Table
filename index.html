@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <script src="./index.js"></script>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js"></script> -->
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/gh/dubrox/Multiple-Dates-Picker-for-jQuery-UI@master/jquery-ui.multidatespicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+</head>
+
+<body>
+    <div class="table-container">
+        <button class="button is-primary is-rounded" onclick=" showRow()">Add New</button>
+        <table class="table">
+            <thead class="table is-bordered">
+                <tr>
+                    <th>Action</th>
+                    <th>ID</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>month,year</th>
+                    <th>Dates Exluded</th>
+                    <th>Numbers of days</th>
+                    <th>Lead Count</th>
+                    <th>Expected DRR</th>
+                    <th>Last Updated</th>
+                </tr>
+                <tr style="display: none;" id="inputData">
+                    <form id="data-form">
+                        <td>N/A</td>
+                        <td>N/A</td>
+                        <td><input type="date" value="0" id="startDate"></td>
+                        <td><input type="date" value="0" id="enddate" onchange="calculateMonthYear()"></td>
+                        <td id="monthYear"></td>
+                        <td><input type="text" id="datePick" value="0"></td>
+                        <td id="noOfDays"></td>
+                        <td><input type="number" value="0" id="leadCount" onchange="calculateNoOfDays()"></td>
+                        <td><input type="number" value="0" id="expectedDD"></td>
+                        <td><button type="submit" class="has-background-success-dark has-text-white">Save</button><br />
+                            <button class="has-background-danger-dark has-text-white"
+                                onclick="HideRow()">Cancel</button>
+                        </td>
+                    </form>
+
+
+                </tr>
+            </thead>
+            <tbody id="table-body" class="table is-bordered">
+
+                <!-- Data will be added dynamically here -->
+            </tbody>
+
+        </table>
+    </div>
+</body>
+
+<script>
+    $(document).ready(function () {
+        $('#datePick').multiDatesPicker();
+    });
+
+    let data = [
+        {
+            Action: '', ID: 1, StartDate: "2023-10-10", EndDate: "2023-10-24", Month: 10, Year: 2023, DateExluded: "",
+            NoOfDays: 14, LeadCount: 2, ExpectedDD: 0, CreateDate: "2023-10-10", UpdateDate: "2023-10-10"
+        },
+        {
+            Action: '', ID: 2, StartDate: "2023-10-10", EndDate: "2023-10-24", Month: 10, Year: 2023, DateExluded: "",
+            NoOfDays: 14, LeadCount: 2, ExpectedDD: 0, CreateDate: "2023-10-10", UpdateDate: "2023-10-10"
+        },
+
+    ];
+
+    const tableBody = document.getElementById("table-body");
+    const dataForm = document.getElementById("data-form");
+    const startDate = document.getElementById("startDate");
+    const endDate = document.getElementById("enddate");
+    const dateExcluded = document.getElementById("datePick");
+    // const noOfdays = document.getElementById("noOfdays");
+    const leadCount = document.getElementById("leadCount");
+    const expectedDD = document.getElementById("expectedDD");
+
+    function renderTable() {
+        tableBody.innerHTML = '';
+        data.forEach(item => {
+            const row = document.createElement("tr");
+
+            var montYear = getMonth(item.StartDate) + ',' + getYear(item.StartDate);
+            row.innerHTML = `
+                    <td>${item.Action}</td>
+                    <td>${item.ID}</td>
+                    <td>${item.StartDate}</td>
+                    <td>${item.EndDate}</td>
+                    <td>${montYear}</td>
+                    <td>${item.DateExcluded}</td>
+                    <td>${item.NoOfDays}</td>
+                    <td>${item.LeadCount}</td>
+                    <td>${item.ExpectedDD}</td>
+                    <td>${item.UpdateDate}</td>
+                `;
+            tableBody.appendChild(row);
+        });
+    }
+
+
+    function getMonth(dateValue) {
+        const extractDateValue = new Date(dateValue);
+        return extractDateValue.getMonth() + 1;
+    }
+    function getYear(dateValue) {
+        const extractDateValue = new Date(dateValue);
+        return extractDateValue.getFullYear();
+    }
+    function addData(startDate, endDate, dateExcluded, leadCount, expectedDD) {
+        //alert('mnbhjbhj')
+        const exludedArrayDate = [];
+        const action = "";
+        const ID = data.length + 1;
+        const startDateValue = new Date(startDate);
+        const endDateValue = new Date(endDate);
+        const totalExcludedDate = dateExcluded.split(',').length
+        const month = getMonth(startDate);
+        const year = getYear(startDate);
+        const diffTime = Math.abs(endDateValue - startDateValue);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const noOfDays = diffDays - totalExcludedDate;
+        const createDate = formatDateToYYYYMMDD(new Date());
+        const updateDate = formatDateToYYYYMMDD(new Date());
+        for (var i = 0; i < totalExcludedDate; i++) {
+            const totalExcludedDate = 0;
+            if (dateExcluded && !dateExcluded.contains(',')) {
+                exludedArrayDate.push(convertDateToYYYYMMDD(dateExcluded))
+            }
+            if (dateExcluded.contains(',')) {
+                exludedArrayDate.push(convertDateToYYYYMMDD(dateExcluded.split(',')[i]))
+            }
+        }
+
+        console.log('exludedArrayDate' + JSON.stringify(exludedArrayDate))
+        let formData = {
+            Action: action,
+            ID: ID,
+            StartDate: startDate,
+            EndDate: endDate,
+            Month: month,
+            Year: year,
+            DateExcluded: exludedArrayDate, //dateExcluded,
+            NoOfDays: noOfDays,
+            LeadCount: leadCount,
+            ExpectedDD: expectedDD,
+            CreateDate: createDate,
+            UpdateDate: updateDate
+        }
+        console.log(JSON.stringify(formData))
+        data.push(formData);
+        renderTable();
+    }
+    function formatDateToYYYYMMDD(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    }
+    function convertDateToYYYYMMDD(inputDate) {
+        const parts = inputDate.split('/'); // Split the date string into parts
+        const month = parts[0];
+        const day = parts[1];
+        const year = parts[2];
+
+        // Create a new Date object in the desired format
+        const dateObject = new Date(`${year}-${month}-${day}`);
+
+        // Extract the year, month, and day from the new Date object
+        const formattedYear = dateObject.getFullYear();
+        const formattedMonth = String(dateObject.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const formattedDay = String(dateObject.getDate()).padStart(2, '0');
+
+        return `${formattedYear}-${formattedMonth}-${formattedDay}`;
+    }
+
+    dataForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        // alert('vcccc')
+        console.log('startDate ' + startDate.value)
+        console.log('endDate ' + endDate.value)
+        console.log('dateExcluded ' + dateExcluded.value)
+        console.log('noOfdays ' + leadCount.value)
+        console.log('expectedDD ' + expectedDD.value)
+
+        addData(startDate.value, endDate.value, dateExcluded.value, leadCount.value, expectedDD.value);
+    });
+
+    function calculateMonthYear() {
+
+        var montYear = getMonth(startDate.value) + ',' + getYear(startDate.value);
+        document.getElementById("monthYear").innerHTML = montYear
+
+        const startDateValue = new Date(startDate.value);
+        const endDateValue = new Date(endDate.value);
+        const diffTime = Math.abs(endDateValue - startDateValue);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        document.getElementById("noOfDays").innerHTML = diffDays
+
+    }
+
+    function calculateNoOfDays() {
+        alert('inside ffff')
+        let existingNoOfDays = document.getElementById("noOfDays").innerHTML;
+        let totalExcludedDate = 0;
+        if (dateExcluded.value) {
+            totalExcludedDate = 1;
+        }
+        if (dateExcluded.value.indexOf(',') !== -1) {
+            totalExcludedDate = dateExcluded.split(',').length
+        }
+
+
+        const noOfDays = Number(existingNoOfDays) - totalExcludedDate;
+
+        document.getElementById("noOfDays").innerHTML = noOfDays
+    }
+
+    renderTable();
+    /***********///////////////***********************/
+    /*function startDateValueEndDateValue() {
+        if (startDateValue < endDateValue) {
+
+        }
+        else {
+            alert("please select create date");
+        }
+    }
+
+    function myfunction() {
+        if (startDateValue  endDateValue) {
+
+        }
+            else {
+            alert("please select create date");
+        }
+    }
+*/
+</script>
+
+</html>
