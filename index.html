@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Table</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <script src="./index.js"></script>
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.css" />
@@ -70,11 +70,11 @@
 
     let data = [
         {
-            Action: '', ID: 1, StartDate: "2023-10-10", EndDate: "2023-10-24", Month: 10, Year: 2023, DateExluded: "",
+            Action: '', ID: 1, StartDate: "2023-10-10", EndDate: "2023-10-24", Month: 10, Year: 2023, DateExluded: "10-13-2023",
             NoOfDays: 14, LeadCount: 2, ExpectedDD: 0, CreateDate: "2023-10-10", UpdateDate: "2023-10-10"
         },
         {
-            Action: '', ID: 2, StartDate: "2023-10-10", EndDate: "2023-10-24", Month: 10, Year: 2023, DateExluded: "",
+            Action: '', ID: 2, StartDate: "2023-10-10", EndDate: "2023-10-24", Month: 10, Year: 2023, DateExluded: "10-13-2023",
             NoOfDays: 14, LeadCount: 2, ExpectedDD: 0, CreateDate: "2023-10-10", UpdateDate: "2023-10-10"
         },
 
@@ -127,7 +127,15 @@
         const ID = data.length + 1;
         const startDateValue = new Date(startDate);
         const endDateValue = new Date(endDate);
-        const totalExcludedDate = dateExcluded.split(',').length
+        let totalExcludedDate = 0;
+        if (dateExcluded.value) {
+            totalExcludedDate = 1;
+        }
+        if (dateExcluded.value.indexOf(',') !== -1) {
+            totalExcludedDate = dateExcluded.value.split(',').length
+        }
+
+        //const totalExcludedDate = dateExcluded.split(',').length
         const month = getMonth(startDate);
         const year = getYear(startDate);
         const diffTime = Math.abs(endDateValue - startDateValue);
@@ -137,10 +145,10 @@
         const updateDate = formatDateToYYYYMMDD(new Date());
         for (var i = 0; i < totalExcludedDate; i++) {
             const totalExcludedDate = 0;
-            if (dateExcluded && !dateExcluded.contains(',')) {
+            if (dateExcluded && dateExcluded.value.indexOf(',') === -1) {
                 exludedArrayDate.push(convertDateToYYYYMMDD(dateExcluded))
             }
-            if (dateExcluded.contains(',')) {
+            if (dateExcluded.value.indexOf(',') !== -1) {
                 exludedArrayDate.push(convertDateToYYYYMMDD(dateExcluded.split(',')[i]))
             }
         }
@@ -190,18 +198,42 @@
 
     dataForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        // alert('vcccc')
-        console.log('startDate ' + startDate.value)
-        console.log('endDate ' + endDate.value)
-        console.log('dateExcluded ' + dateExcluded.value)
-        console.log('noOfdays ' + leadCount.value)
-        console.log('expectedDD ' + expectedDD.value)
+
+        if (new Date(startDate.value) >= new Date(endDate.value)) {
+            alert("end date should be greater that start date")
+        }
+        let totalExcludedDate = 0;
+        if (dateExcluded.value) {
+            totalExcludedDate = 1;
+        }
+        if (dateExcluded.value.indexOf(',') !== -1) {
+            totalExcludedDate = dateExcluded.value.split(',').length
+        }
+        for (var i = 0; i < totalExcludedDate; i++) {
+
+            if (dateExcluded.value.split(',')[i] >= startDate.value && dateExcluded.value.split(',')[i] <= endDate.value) {
+
+            } else {
+                alert("dateExclude should be between start date and end data!")
+            }
+
+        }
+
+
+        //console.log('startDate ' + startDate.value)
+        //console.log('endDate ' + endDate.value)
+        //console.log('dateExcluded ' + dateExcluded.value)
+        //console.log('noOfdays ' + leadCount.value)
+        //console.log('expectedDD ' + expectedDD.value)
 
         addData(startDate.value, endDate.value, dateExcluded.value, leadCount.value, expectedDD.value);
     });
 
     function calculateMonthYear() {
 
+        if (new Date(startDate.value) >= new Date(endDate.value)) {
+            alert("end date should be greater that start date")
+        }
         var montYear = getMonth(startDate.value) + ',' + getYear(startDate.value);
         document.getElementById("monthYear").innerHTML = montYear
 
@@ -214,7 +246,7 @@
     }
 
     function calculateNoOfDays() {
-        alert('inside ffff')
+
         let existingNoOfDays = document.getElementById("noOfDays").innerHTML;
         let totalExcludedDate = 0;
         if (dateExcluded.value) {
@@ -231,25 +263,7 @@
     }
 
     renderTable();
-    /***********///////////////***********************/
-    /*function startDateValueEndDateValue() {
-        if (startDateValue < endDateValue) {
 
-        }
-        else {
-            alert("please select create date");
-        }
-    }
-
-    function myfunction() {
-        if (startDateValue  endDateValue) {
-
-        }
-            else {
-            alert("please select create date");
-        }
-    }
-*/
 </script>
 
 </html>
